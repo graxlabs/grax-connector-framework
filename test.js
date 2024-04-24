@@ -22,8 +22,8 @@ async function TestObjectList(){
 }
 
 async function TestgetSnapshotData(){
-    let searches = await g.getSnapshotData(g.SnapShotDefinition);
-    console.log("Returned Searches: " + searches.length);
+    let searchdata = await g.getSnapshotData(g.SnapShotDefinition);
+    console.log(searchdata);
 }
 
 async function TestgetSearch(){

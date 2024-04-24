@@ -31,7 +31,8 @@ exports.SnapShotDefinition = {
   numberofsnapshots: 12,
   startdate: getPreviousMonths(12),
   enddate: getPreviousMonths(0),
-  searchstart: getPreviousMonths(12),
+  // searchstart: getPreviousMonths(12),
+  searchstart: '1/1/' + new Date(getPreviousMonths(12)).getFullYear().toString(),
   snapshotfrequncy: 'monthly',
   includesystemfields: false,
   filter: {
@@ -124,17 +125,41 @@ var getSnapshotData = async function (snapshotDef) {
     "true",
     snapshotDef.searchstart
   );
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 500));
   // Header Column is + 1 (probably remove that later)
   for (var i=1; i < searches.length; i++) {
-    searches[i][4] = "Downloading";
     console.log('Starting Download (' + i + '): ' + searches[i][5]);
     await downloadSearch(searches[i][5],snapshotDef.fields);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
-  return searches;
+  await new Promise(resolve => setTimeout(resolve, 500));
+  var snapshotData=""
+  var firstRow = "";
+  for (var i=1; i < searches.length; i++) {
+    var searchId = searches[i][5];
+    while (searchdata.get(searchId)=="DOWNLOADING"){
+      console.log("Search Not Complete (waiting): " + searchId);
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    console.log("Search Complete: " + searchId);
+    var str = searchdata.get(searchId);
+    
+    str = addColumnToCSV(str,"Snapshot Date",searches[i][0]);
+    firstRow = str.substring(0,str.indexOf('\n'));
+    snapshotData+=str.substring(str.indexOf('\n') + 1);
+  }
+  return firstRow + "\n" + snapshotData;
 }
 exports.getSnapshotData = getSnapshotData;
+
+function addColumnToCSV(csvString, columnName, columnData) {
+  const rows = csvString.trim().split('\n');
+  rows[0] += `,${columnName}`;
+  for (let i = 1; i < rows.length; i++) {
+    rows[i] += `,${columnData}`; // Add an empty string if no data exists
+  }
+  return rows.join('\n') + '\n';
+}
 
 // Runs the snapshot which executes X searches and logs them in the GRAX_RECEIPTS tab
 async function runSnapShot(
@@ -229,16 +254,15 @@ var downloadSearch = async function (searchId, fields) {
   let downloadoptions = { 
     responseType: 'arraybuffer'
   };
+  searchdata.set(searchId,"DOWNLOADING");
   var search = await getSearch(searchId);
   if (search.status != "success"){
     await new Promise(resolve => setTimeout(resolve, 2000));
     downloadSearch(searchId,fields);
   } else {
-    searchdata.set(searchId,"DOWNLOADING");
     searchDownload(searchId, searchOptions, downloadoptions)
       .then(async (res) => {
         try {
-          searchdata.set(searchId,"UNZIPPING");
           var zip = new jszip();
           zip
             .loadAsync(res.data)
