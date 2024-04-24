@@ -1,0 +1,280 @@
+
+"use strict";
+var axios = require("axios");
+var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.backupsHealthGet = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.DateFields = void 0;
+
+exports.DateFields = [
+  'rangeLatestModifiedAt',
+  'createdAt',
+  'modifiedAt',
+  'latestModifiedAt',
+  'allModifiedAt',
+  'deletedAt',
+  'purgedAt'
+];
+
+var searches = [];
+exports.searches = searches;
+
+exports.SnapShotDefinition = {
+  objectname: 'Opportunity',
+  fields: 'Id,AccountId,CloseDate,Amount,StageName,Type,CreatedDate,LastModifiedDate',
+  datefield: 'rangeLatestModifiedAt',
+  numberofsnapshots: 12,
+  startdate: getPreviousMonths(12),
+  enddate: getPreviousMonths(0),
+  searchstart: getPreviousMonths(12),
+  snapshotfrequncy: 'monthly',
+  includesystemfields: false,
+  filter: {
+    mode: "and",
+    fields: [
+      {
+        field: "StageName",
+        filterType: "eq",
+        not: true,
+        value: "Closed Lost",
+      },
+      {
+        field: "StageName",
+        filterType: "eq",
+        not: true,
+        value: "Closed Won",
+      },
+    ],
+  }
+};
+
+var connect = function(graxurl, graxtoken) {
+  axios.defaults.baseURL = graxurl;
+  axios.interceptors.request.clear();
+  var currentConfig = axios.interceptors.request.use(function (config) {
+    config.headers.Authorization = `Bearer ${graxtoken}`;
+    return config;
+  });
+};
+exports.connect = connect;
+
+var getHealth = async function() {
+  try {
+      var ishealthy = false;
+      let opts = {
+        maxBehind: 56, // Number | Maximum time behind before the backups are considered unhealthy, in seconds.
+      };
+      var healthData = await backupsHealthGet(opts).catch((err) => {
+        console.log(err);
+        return false;
+      });
+      if (healthData != null) {
+        if (healthData.data!=null){
+          if (healthData.data.status == "ok") 
+              ishealthy = true;
+        }
+      }
+      return ishealthy;
+  } catch(err) {
+    console.log("getHealth EXCEPTION");
+    console.log(err);
+    return false;
+  }
+}
+exports.getHealth = getHealth;
+
+var getObjectsList = async function(){
+  return await retrieveObjectList(null);
+}
+exports.getObjectsList = getObjectsList;
+
+async function retrieveObjectList(currentPageToken) {
+  var vals = await objectsList({ maxItems: 2000, pageToken: currentPageToken })
+    .then(async (res) => {
+      if (res.data.nextPageToken != null) {
+        //console.log("Loading Next Page: " + res.data.nextPageToken);
+        var objs = await retrieveObjectList(res.data.nextPageToken);
+        var objectList = res.data.objects.concat(objs);
+        return objectList;
+      } else {
+        return res.data.objects;
+      }
+    })
+    .catch((err) => registerException(err));  
+  return vals;
+}
+
+// ------------------------------------------------------------------------------------------------------
+//                                          Snapshot Logic                             
+// ------------------------------------------------------------------------------------------------------
+var getSnapshotData = async function (snapshotDef) {
+  console.log('Running Snapshot ' + snapshotDef.objectname);
+  return await runSnapShot(
+    snapshotDef.objectname,
+    snapshotDef.datefield,
+    snapshotDef.snapshotfrequncy,
+    snapshotDef.startdate,
+    snapshotDef.numberofsnapshots,
+    JSON.stringify(snapshotDef.filter),
+    "true",
+    snapshotDef.searchstart
+  );
+}
+exports.getSnapshotData = getSnapshotData;
+
+// Runs the snapshot which executes X searches and logs them in the GRAX_RECEIPTS tab
+async function runSnapShot(
+  objectName,
+  dateField,
+  snapshotfrequency,
+  segmentStart,
+  numberofSegments,
+  filter,
+  isCumulative,
+  searchStartDate
+) {
+  searches = [["Snapshot Key", "Start Search", "End Search", "Snapshot Number", "Status", "SearchId"]];
+  var startDate = new Date(segmentStart);
+  segmentStart = new Date(segmentStart);
+  var endDate = null;
+  var firstDayOfSearch = null;
+  for (var i = 0; i < numberofSegments; i++) {
+    if (isCumulative.toString().toLowerCase() == "true") {
+      firstDayOfSearch = new Date(searchStartDate);
+    } else {
+      firstDayOfSearch = new Date(segmentStart.getFullYear(), startDate.getMonth() + i);
+    }
+    endDate = GetSearchEndDate(snapshotfrequency,segmentStart, i);
+    var segmentKey = GetSegmentKey(endDate);
+    if (isEndDateValid(snapshotfrequency,endDate)) {
+      var row = [segmentKey.toString(), firstDayOfSearch.toString(), endDate.toString(), i.toString(), "Running"];
+      searches.push(row);
+      await doSearch(
+        i,
+        objectName,
+        dateField,
+        firstDayOfSearch.toISOString(),
+        endDate.toISOString(),
+        filter
+      );
+    } else {
+      console.log("Skipping Search: " + endDate + " segmentKey: " + segmentKey);
+    }
+  }
+  return searches;
+}
+
+async function doSearch(index, objectName, timeField, startDate, endDate, filter) {
+  let searchopts = {
+    object: objectName.toString(),
+    timeField: timeField.toString(), // 'createdAt', 'modifiedAt', 'latestModifiedAt', 'rangeLatestModifiedAt', 'allModifiedAt', 'deletedAt' or 'purgedAt'. Defaults to 'createdAt'.
+    timeFieldMax: endDate.toString(),
+    timeFieldMin: startDate.toString()
+  };
+
+  if (searchopts.timeField != "deletedAt" && searchopts.timeField != "purgedAt") {
+    searchopts.status = "live";
+  }
+  if (filter != null && filter != "") {
+    searchopts.filters = await JSON.parse(filter);
+  }
+  try {
+    searchCreate(searchopts)
+      .then((res) => {
+        searches[index+1][4] = "Completed";
+        searches[index+1][5] = res.data.id;
+        return res.data.id;
+      })
+      .catch((err) => registerException(err));
+  } catch (ex) {
+    registerException(ex);
+  }
+}
+// ------------------------------------------------------------------------------------------------------
+//                                  
+// ------------------------------------------------------------------------------------------------------
+
+function registerException(ex) {
+  console.log(ex.code);
+  globalThis.isException = true;
+  globalThis.graxexception = ex;
+}
+
+// Internal Date Functions Not Exports
+function getCurrentDate(){
+  const now = new Date();
+  console.log(now);
+  return now.getMonth().toString().padStart(2, "0") + "/" + now.getDay().toString().padStart(2, "0") + "/" + now.getFullYear();
+}
+
+function getLastDayOfCurrentMonth() {
+  // Get the current date
+  const now = new Date();
+  // Get the current year and month
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  // Create a date object pointing to the first day of the next month
+  const nextMonth = new Date(year, month + 1, 1);
+  // Subtract one day to get the last day of the current month
+  const lastDay = new Date(nextMonth - 1);
+  // Format the date as MM/DD/YYYY
+  const formattedDate =
+    (lastDay.getMonth() + 1).toString().padStart(2, "0") +
+    "/" +
+    lastDay.getDate().toString().padStart(2, "0") +
+    "/" +
+    lastDay.getFullYear();
+  return formattedDate;
+}
+
+function getPreviousMonths(numberofsnapshots) {
+  const today = new Date();
+  var firstDayPreviousMonth = getFirstDayOfXMonthsAgo(numberofsnapshots);
+  const mm = String(firstDayPreviousMonth.getMonth() + 1).padStart(2, "0"); // Months are 0-based in JS
+  const dd = String(firstDayPreviousMonth.getDate()).padStart(2, "0");
+  const yyyy = firstDayPreviousMonth.getFullYear();
+  var retVal = mm + "/" + dd + "/" + yyyy;
+  return retVal;
+}
+
+function getFirstDayOfXMonthsAgo(months) {
+  const today = new Date(); // get the current date
+  const xMonthsAgo = new Date(today); // create a new date object based on today
+  xMonthsAgo.setMonth(today.getMonth() - months); // subtract 3 months from the current date
+  xMonthsAgo.setDate(1); // set the date to the first of the month
+  return xMonthsAgo;
+}
+
+function GetSearchEndDate(snapshotfrequency, SnapshotStartDate, increment) {
+  if (snapshotfrequency == "daily") {
+    const nextDayDate = new Date(SnapshotStartDate);
+    nextDayDate.setDate(nextDayDate.getDate() + increment);
+    return nextDayDate;
+  } else {
+    var endMonthDate = getLastDayOfMonth(
+      new Date(SnapshotStartDate.getFullYear(), SnapshotStartDate.getMonth() + increment)
+    );
+    return endMonthDate;
+  }
+}
+
+function isEndDateValid(snapshotfrequency,endDate) {
+  if (snapshotfrequency == "daily") {
+    return Date.now() >= endDate;
+  } else {
+    return getLastDayOfMonth(Date.now()) >= getLastDayOfMonth(endDate);
+  }
+}
+
+function getLastDayOfMonth(date) {
+  var currentDate = new Date(date);
+  var lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+  return lastDayOfMonth;
+}
+
+function GetSegmentKey(endDate) {
+  const mm = String(endDate.getMonth() + 1).padStart(2, "0");
+  const dd = String(endDate.getDate()).padStart(2, "0");
+  const yyyy = endDate.getFullYear();
+  return mm + "/" + dd + "/" + yyyy;
+}
