@@ -38,18 +38,3 @@ async function TestdownloadSearch(){
     await new Promise(resolve => setTimeout(resolve, 5000));
     console.log(g.searchdata.get('kHfSSaGqqziOtUVqY72emC'));
 }
-
-/*
-Search: kHfSSaGqqziOtUVqY72emC
-Search: BOzEnQDcoqDhe7abbAemMN
-Search: OworezcfPsZeeIBtXv5URk
-Search: FhAguMUFuvjelvrcNrYMSB
-Search: Hlsf9BGBCUqjipVmxPFvTH
-Search: sVTEPHhKkWfffNTM6OI8tA
-Search: qxF2WSImj3jbdAjTn5PxVA
-Search: PMJiJ0PeuKvnxZfDfDDmfU
-Search: ZUL271zynZQAGS11g11GiD
-Search: ALeb56UfVAZFFNdjnKkWqL
-Search: ru5XhQbGrC3716rek9LuPF
-Search: eLBaiISHUNyEv4c2iNkM8H
-*/
