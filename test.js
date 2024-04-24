@@ -2,10 +2,14 @@
 var g = require('./index.js');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
-TestHealth();
-TestObjectList();
-console.log(g.SnapShotDefinition);
-// TestgetSnapshotData();
+// TestHealth();
+// TestObjectList();
+// console.log(g.SnapShotDefinition);
+
+// TestgetSearch();
+// TestdownloadSearch();
+
+TestgetSnapshotData();
 
 async function TestHealth(){
     var health = await g.getHealth();
@@ -20,9 +24,20 @@ async function TestObjectList(){
 async function TestgetSnapshotData(){
     let searches = await g.getSnapshotData(g.SnapShotDefinition);
     console.log("Returned Searches: " + searches.length);
-    
 }
 
+async function TestgetSearch(){
+    let searchStatus = await g.getSearch('kHfSSaGqqziOtUVqY72emC');
+    console.log('Search Records Found: ' + searchStatus.recordsFound);
+    console.log('Search Status: ' + searchStatus.status);
+}
+
+async function TestdownloadSearch(){
+    var downloadData = await g.downloadSearch('kHfSSaGqqziOtUVqY72emC',g.SnapShotDefinition.fields);
+    console.log(g.searchdata.get('kHfSSaGqqziOtUVqY72emC'));
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    console.log(g.searchdata.get('kHfSSaGqqziOtUVqY72emC'));
+}
 
 /*
 Search: kHfSSaGqqziOtUVqY72emC

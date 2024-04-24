@@ -1,10 +1,12 @@
 
 "use strict";
 var axios = require("axios");
+var jszip = require("jszip");
+
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.DateFields = void 0;
+exports.backupsHealthGet = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.DateFields = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -18,6 +20,9 @@ exports.DateFields = [
 
 var searches = [];
 exports.searches = searches;
+
+var searchdata = new Map();
+exports.searchdata = searchdata;
 
 exports.SnapShotDefinition = {
   objectname: 'Opportunity',
@@ -109,7 +114,7 @@ async function retrieveObjectList(currentPageToken) {
 // ------------------------------------------------------------------------------------------------------
 var getSnapshotData = async function (snapshotDef) {
   console.log('Running Snapshot ' + snapshotDef.objectname);
-  return await runSnapShot(
+  await runSnapShot(
     snapshotDef.objectname,
     snapshotDef.datefield,
     snapshotDef.snapshotfrequncy,
@@ -119,6 +124,15 @@ var getSnapshotData = async function (snapshotDef) {
     "true",
     snapshotDef.searchstart
   );
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  // Header Column is + 1 (probably remove that later)
+  for (var i=1; i < searches.length; i++) {
+    searches[i][4] = "Downloading";
+    console.log('Starting Download (' + i + '): ' + searches[i][5]);
+    await downloadSearch(searches[i][5],snapshotDef.fields);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  return searches;
 }
 exports.getSnapshotData = getSnapshotData;
 
@@ -194,8 +208,68 @@ async function doSearch(index, objectName, timeField, startDate, endDate, filter
 //                                  
 // ------------------------------------------------------------------------------------------------------
 
+// Waits and gets the results of a search
+var getSearch = async function (searchId) {
+  return await searchGet(searchId)
+    .then(async (res) => {
+      return res.data;
+    })
+    .catch((err) => registerException(err));
+}
+exports.getSearch = getSearch;
+
+// ------------------------------------------------------------------------------------------------------
+//                                  
+// ------------------------------------------------------------------------------------------------------
+// Downloads and unzips the search results
+var downloadSearch = async function (searchId, fields) {
+  let searchOptions = {
+    fields: fields
+  };
+  let downloadoptions = { 
+    responseType: 'arraybuffer'
+  };
+  var search = await getSearch(searchId);
+  if (search.status != "success"){
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    downloadSearch(searchId,fields);
+  } else {
+    searchdata.set(searchId,"DOWNLOADING");
+    searchDownload(searchId, searchOptions, downloadoptions)
+      .then(async (res) => {
+        try {
+          searchdata.set(searchId,"UNZIPPING");
+          var zip = new jszip();
+          zip
+            .loadAsync(res.data)
+            .then(function (filedata) {
+              filedata.forEach(async function (relativepath, zipfile) {
+                if (zipfile.name != ".readme") {
+                  zipfile.async("string").then(async function (unzipped) {
+                    searchdata.set(searchId,unzipped);
+                    console.log("Downloaded: " + searchId);
+                  });
+                }
+              });
+            })
+            .catch((error) => {
+              registerException(error);
+            });
+        } catch (exception) {
+          registerException(exception);
+        }
+      })
+      .catch((err) => registerException(err));
+  }
+}
+exports.downloadSearch = downloadSearch;
+// ------------------------------------------------------------------------------------------------------
+//                                  
+// ------------------------------------------------------------------------------------------------------
+
 function registerException(ex) {
-  console.log(ex.code);
+  console.log("EXCEPTION!");
+  console.log(ex);
   globalThis.isException = true;
   globalThis.graxexception = ex;
 }
