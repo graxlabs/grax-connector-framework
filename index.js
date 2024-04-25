@@ -1,6 +1,6 @@
 
 // "use strict";
-var axios = require("axios");
+var axios = require("axios").default;
 var jszip = require("jszip");
 
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
