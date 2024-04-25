@@ -55,6 +55,7 @@ exports.SnapShotDefinition = {
 };
 
 var connect = function(graxurl, graxtoken) {
+  axios.create();
   axios.defaults.baseURL = graxurl;
   axios.interceptors.request.clear();
   var currentConfig = axios.interceptors.request.use(function (config) {

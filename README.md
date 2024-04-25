@@ -3,6 +3,11 @@
 This package will be used by all connectors that need to execute snapshot reports to make them easily done with unified logic.
 
 
+### Testing 
+export GRAX_URL=```<GRAXURL>```
+export GRAX_TOKEN=```<GRAXTOKEN>```
+
+
 
 
 
