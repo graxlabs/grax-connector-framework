@@ -148,7 +148,11 @@ var getSnapshotData = async function (snapshotDef) {
     firstRow = str.substring(0,str.indexOf('\n'));
     snapshotData+=str.substring(str.indexOf('\n') + 1);
   }
-  return firstRow + "\n" + snapshotData;
+  var returnvalue = firstRow + "\n" + snapshotData;
+  if (snapshotDef.includesystemfields == false || snapshotDef.includesystemfields.toString().toLowerCase() == "false" || snapshotDef.includesystemfields==null){
+    returnvalue = removeGraxSytemFields(returnvalue);
+  }
+  return returnvalue;
 }
 exports.getSnapshotData = getSnapshotData;
 
@@ -159,6 +163,34 @@ function addColumnToCSV(csvString, columnName, columnData) {
     rows[i] += `,${columnData}`; // Add an empty string if no data exists
   }
   return rows.join('\n') + '\n';
+}
+
+function removeGraxSytemFields(csvString) {
+  // Split the CSV into lines
+  const lines = csvString.split('\n');
+
+  if (lines.length === 0) return '';
+
+  // Identify the header line and split it into columns
+  const headers = lines[0].split(',');
+
+  // Find indexes of columns whose headers contain 'grax'
+  const columnIndexesToRemove = headers.reduce((indexes, header, index) => {
+      if (header.toLowerCase().includes('grax.')) {
+          indexes.push(index);
+      }
+      return indexes;
+  }, []);
+
+  // Filter out the columns in each line
+  const filteredLines = lines.map(line => {
+      const cols = line.split(',');
+      const filteredCols = cols.filter((col, index) => !columnIndexesToRemove.includes(index));
+      return filteredCols.join(',');
+  });
+
+  // Join the filtered lines back into a single CSV string
+  return filteredLines.join('\n');
 }
 
 // Runs the snapshot which executes X searches and logs them in the GRAX_RECEIPTS tab

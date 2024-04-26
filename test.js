@@ -2,14 +2,15 @@
 var g = require('./index.js');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
-TestHealth();
+// TestHealth();
 // TestObjectList();
 // console.log(g.SnapShotDefinition);
 
 // TestgetSearch();
 // TestdownloadSearch();
 
-// TestgetSnapshotData();
+g.SnapShotDefinition.numberofsnapshots = 1;
+TestgetSnapshotData();
 
 async function TestHealth(){
     var health = await g.getHealth();
