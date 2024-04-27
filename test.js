@@ -2,16 +2,13 @@
 var g = require('./index.js');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
-TestHealth();
-TestObjectList();
-console.log(g.SnapShotDefinition);
-
-TestgetSearch();
-TestdownloadSearch();
-
-TestgetSavedSnapshots();
-
-g.SnapShotDefinition.numberofsnapshots = 1;
+//TestHealth();
+//TestObjectList();
+//console.log(g.SnapShotDefinition);
+//TestgetSearch();
+//TestdownloadSearch();
+//TestgetSavedSnapshots();
+//g.SnapShotDefinition.numberofsnapshots = 1;
 TestgetSnapshotData();
 
 async function TestHealth(){
@@ -25,6 +22,8 @@ async function TestObjectList(){
 }
 
 async function TestgetSnapshotData(){
+    g.SnapShotDefinition.numberofsnapshots = 1;
+    g.SnapShotDefinition.fields += ",Description";
     let searchdata = await g.getSnapshotData(g.SnapShotDefinition);
     console.log(searchdata);
 }
@@ -36,10 +35,11 @@ async function TestgetSearch(){
 }
 
 async function TestdownloadSearch(){
-    var downloadData = await g.downloadSearch('kHfSSaGqqziOtUVqY72emC',g.SnapShotDefinition.fields);
-    console.log(g.searchdata.get('kHfSSaGqqziOtUVqY72emC'));
+    var downloadData = await g.downloadSearch('ebMzupkrVppfdteNxb6WCb',g.SnapShotDefinition.fields + ",Description");
     await new Promise(resolve => setTimeout(resolve, 5000));
-    console.log(g.searchdata.get('kHfSSaGqqziOtUVqY72emC'));
+    var rawcsv = g.searchdata.get('ebMzupkrVppfdteNxb6WCb');
+    var parsedcsv = g.parseCsv(rawcsv);
+    console.log("Parsed CSV: " + parsedcsv.length);
 }
 
 function TestgetSavedSnapshots(){

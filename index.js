@@ -2,11 +2,12 @@
 // "use strict";
 var axios = require("axios").default;
 var jszip = require("jszip");
+var csvparser = require('papaparse');
 
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
+exports.backupsHealthGet = exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -149,8 +150,7 @@ var getSnapshotData = async function (snapshotDef) {
     }
     console.log("Search Complete: " + searchId);
     var str = searchdata.get(searchId);
-    
-    str = addColumnToCSV(str,"Snapshot Date",searches[i][0]);
+    snapshotData += addColumnToCSV(str,"Snapshot Date",searches[i][0]);
     firstRow = str.substring(0,str.indexOf('\n'));
     snapshotData+=str.substring(str.indexOf('\n') + 1);
   }
@@ -163,12 +163,13 @@ var getSnapshotData = async function (snapshotDef) {
 exports.getSnapshotData = getSnapshotData;
 
 function addColumnToCSV(csvString, columnName, columnData) {
-  const rows = csvString.trim().split('\n');
-  rows[0] += `,${columnName}`;
-  for (let i = 1; i < rows.length; i++) {
-    rows[i] += `,${columnData}`; // Add an empty string if no data exists
+  var parsedcsv = parseCsv(csvString);
+  var columnIndex = parsedcsv[0] ? parsedcsv[0].length : 0;
+  for (let row of parsedcsv) {
+    row.splice(columnIndex, 0, columnData);
   }
-  return rows.join('\n') + '\n';
+  parsedcsv[0][columnIndex] = columnName;
+  return parsedcsv.join('\n') + '\n';
 }
 
 function removeGraxSytemFields(csvString) {
@@ -335,6 +336,19 @@ function registerException(ex) {
   globalThis.isException = true;
   globalThis.graxexception = ex;
 }
+
+var parseCsv = function parseCsv(csvdata){
+  var parsedcsv = csvparser.parse(csvdata,{delimiter:",",quoteChar:'"',escapeChar:'"',skipEmptyLines: true});
+  var validrows = [];
+  for (const value of parsedcsv.data) {
+    if (value.length > 0) {
+      if (value.length>1 || value[0]!="")
+        validrows.push(value);
+    }
+  }
+  return validrows
+}
+exports.parseCsv = parseCsv;
 
 // Internal Date Functions Not Exports
 function getCurrentDate(){
