@@ -22,8 +22,8 @@ async function TestObjectList(){
 }
 
 async function TestgetSnapshotData(){
-    g.SnapShotDefinition.numberofsnapshots = 1;
-    g.SnapShotDefinition.fields += ",Description";
+    g.SnapShotDefinition.numberofsnapshots = 2;
+    // g.SnapShotDefinition.fields += ",Description";
     let searchdata = await g.getSnapshotData(g.SnapShotDefinition);
     console.log(searchdata);
 }

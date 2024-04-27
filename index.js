@@ -150,11 +150,11 @@ var getSnapshotData = async function (snapshotDef) {
     }
     console.log("Search Complete: " + searchId);
     var str = searchdata.get(searchId);
-    snapshotData += addColumnToCSV(str,"Snapshot Date",searches[i][0]);
+    snapshotData += addColumnToCSV(str,"Snapshot Date",searches[i][0],true);
     firstRow = str.substring(0,str.indexOf('\n'));
-    snapshotData+=str.substring(str.indexOf('\n') + 1);
+    // snapshotData+=str.substring(str.indexOf('\n') + 1);
   }
-  var returnvalue = firstRow + "\n" + snapshotData;
+  var returnvalue = firstRow + ",Snapshot Date\n" + snapshotData;
   if (snapshotDef.includesystemfields == false || snapshotDef.includesystemfields.toString().toLowerCase() == "false" || snapshotDef.includesystemfields==null){
     returnvalue = removeGraxSytemFields(returnvalue);
   }
@@ -162,13 +162,17 @@ var getSnapshotData = async function (snapshotDef) {
 }
 exports.getSnapshotData = getSnapshotData;
 
-function addColumnToCSV(csvString, columnName, columnData) {
+function addColumnToCSV(csvString, columnName, columnData,removefirstrow) {
+  console.log("Adding " + columnName + "=" + columnData);
   var parsedcsv = parseCsv(csvString);
   var columnIndex = parsedcsv[0] ? parsedcsv[0].length : 0;
   for (let row of parsedcsv) {
     row.splice(columnIndex, 0, columnData);
   }
   parsedcsv[0][columnIndex] = columnName;
+  if (removefirstrow==true){
+    parsedcsv.shift();
+  }
   return parsedcsv.join('\n') + '\n';
 }
 
