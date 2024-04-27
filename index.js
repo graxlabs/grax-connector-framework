@@ -6,7 +6,7 @@ var jszip = require("jszip");
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = void 0;
+exports.backupsHealthGet = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -16,6 +16,12 @@ exports.DateFields = [
   'allModifiedAt',
   'deletedAt',
   'purgedAt'
+];
+
+exports.Frequency = [
+  'monthly',
+  'daily',
+  'single'
 ];
 
 var searches = [];
