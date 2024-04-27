@@ -2,12 +2,14 @@
 var g = require('./index.js');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
-// TestHealth();
-// TestObjectList();
-// console.log(g.SnapShotDefinition);
+TestHealth();
+TestObjectList();
+console.log(g.SnapShotDefinition);
 
-// TestgetSearch();
-// TestdownloadSearch();
+TestgetSearch();
+TestdownloadSearch();
+
+TestgetSavedSnapshots();
 
 g.SnapShotDefinition.numberofsnapshots = 1;
 TestgetSnapshotData();
@@ -38,4 +40,8 @@ async function TestdownloadSearch(){
     console.log(g.searchdata.get('kHfSSaGqqziOtUVqY72emC'));
     await new Promise(resolve => setTimeout(resolve, 5000));
     console.log(g.searchdata.get('kHfSSaGqqziOtUVqY72emC'));
+}
+
+function TestgetSavedSnapshots(){
+    console.log(g.getSavedSnapshots());
 }

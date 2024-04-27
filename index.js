@@ -6,7 +6,7 @@ var jszip = require("jszip");
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.DateFields = void 0;
+exports.backupsHealthGet = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -408,3 +408,62 @@ function GetSegmentKey(endDate) {
   const yyyy = endDate.getFullYear();
   return mm + "/" + dd + "/" + yyyy;
 }
+
+var getSavedSnapshots = function () {
+  var snapshots = [
+    {
+      name: "Opportunity Snapshot",
+      objectname: "Opportunity",
+      fields: "Id,AccountId,CloseDate,Amount,StageName,Type,CreatedDate,LastModifiedDate",
+      duration: "monthly",
+      numberofsnapshots: 12,
+      datefield: "rangeLatestModifiedAt",
+      tabname: "Opportunity_Data",
+      systemfields: false,
+      graxdescription: "12 Month Opportunity Snapshot Report.<BR/> Filtering OUT \"Closed Lost\" AND \"Closed Won\" Opportunities",
+      graxfilter: {
+        mode: "and",
+        fields: [
+          {
+            field: "StageName",
+            filterType: "eq",
+            not: true,
+            value: "Closed Lost",
+          },
+          {
+            field: "StageName",
+            filterType: "eq",
+            not: true,
+            value: "Closed Won",
+          },
+        ],
+      },
+    },
+    {
+      name: "Case Snapshot",
+      objectname: "Case",
+      fields: "Id,AccountId,Status,Type",
+      duration: "monthly",
+      numberofsnapshots: 12,
+      datefield: "rangeLatestModifiedAt",
+      graxfilter: null,
+      systemfields: false,
+      tabname: "Case_Data",
+      graxdescription: ""
+    },
+    {
+      name: "Lead Snapshot",
+      objectname: "Lead",
+      fields: "Id,Status,Type,Company,ConvertedDate,IsConverted",
+      duration: "monthly",
+      numberofsnapshots: 12,
+      datefield: "rangeLatestModifiedAt",
+      graxfilter: null,
+      systemfields: false,
+      tabname: "Lead_Data",
+      graxdescription: ""
+    },
+  ];
+  return snapshots;
+}
+exports.getSavedSnapshots = getSavedSnapshots;
