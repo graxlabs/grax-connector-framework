@@ -24,7 +24,7 @@ nvm use 18.2.0
 npm install
 export GRAX_URL=https://sample-url-1234.secure.grax.io
 export GRAX_TOKEN=grax_token_ThisIsASampleTokenAbCdEfGhIjKlMnoPqRsTuVwXyZ
-node test.js
+node sample.js
 ```
 
 
