@@ -18,9 +18,9 @@ Salesforce has 1 version of data with GRAX you have 100% of your Salesforce hist
 * [grax-connector-for-athena](https://github.com/graxlabs/grax-connector-framework) - Development
 
 #### Getting Started
-If you would like to collect, protect, and reuse all your Salesforce history it takes minutes. GRAX can be deployed to AWS, Azure, GCP, or Docker and will collect 100% of your Salesforce history for reuse in any of the supported connectors above.
+If you would like to collect, protect, and reuse all your Salesforce history it takes minutes. GRAX can be deployed to AWS, Azure, GCP, or Docker and will collect 100% of your Salesforce history for reuse in any of the supported connectors above. If you have any questions please email [Sales@grax.com](mailto:sales@grax.com?subject=GRAX%20Connector%20Framework%20Request)
 
-* [grax.com](https://www.grax.com/)
+* [https://www.grax.com/](https://www.grax.com/)
 * [Login to GRAX](https://platform.grax.com/)
     * [Deploy GRAX to Azure](https://documentation.grax.com/docs/azure-connection)
     * [Deploy GRAX to AWS](https://documentation.grax.com/docs/platform-basics#deploying-a-grax-application)
