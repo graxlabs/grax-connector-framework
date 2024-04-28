@@ -22,9 +22,9 @@ If you would like to collect, protect, and reuse all your Salesforce history it 
 
 * [grax.com](https://www.grax.com/)
 * [Login to GRAX](https://platform.grax.com/)
-*   [Deploy GRAX to Azure](https://documentation.grax.com/docs/azure-connection)
-*   [Deploy GRAX to AWS](https://documentation.grax.com/docs/platform-basics#deploying-a-grax-application)
-*   [Deploy GRAX to Docker](https://documentation.grax.com/docs/docker-desktop-install)
+    * [Deploy GRAX to Azure](https://documentation.grax.com/docs/azure-connection)
+    * [Deploy GRAX to AWS](https://documentation.grax.com/docs/platform-basics#deploying-a-grax-application)
+    * [Deploy GRAX to Docker](https://documentation.grax.com/docs/docker-desktop-install)
 * [Connect GRAX to Salesforce](https://documentation.grax.com/docs/connecting-salesforce)
 * [Start Auto Backup](https://documentation.grax.com/docs/auto-backup) 
 
