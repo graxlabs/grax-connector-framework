@@ -17,14 +17,15 @@ Salesforce has 1 version of data with GRAX you have 100% of your Salesforce hist
 * [grax-connector-for-athena](https://github.com/graxlabs/grax-connector-framework) - Development
 
 #### How to develop locally
+```
 git clone https://github.com/graxlabs/grax-connector-framework
 cd grax-connector-framework
 nvm use 18.2.0
 npm install
-export GRAX_URL=```<GRAXURL>```
-export GRAX_TOKEN=```<GRAXTOKEN>```
+export GRAX_URL=https://sample-url-1234.secure.grax.io
+export GRAX_TOKEN=grax_token_ThisIsASampleTokenAbCdEfGhIjKlMnoPqRsTuVwXyZ
 node test.js
-
+```
 
 
 
