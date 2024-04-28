@@ -2,7 +2,7 @@
 
 ## GRAX Connector Framework
 
-The GRAX Connector Framework is used by all GRAX connectors that need to execute snapshot reports to make them easily done. The goal is to ensure that all snapshot logic executed in all connectors is unified ensuring data experience is the same across multiple mediums. If you are updating the framework you must ```npm update``` packages below, test, and validate changes.
+The GRAX Connector Framework is used by all GRAX connectors to execute snapshot reports to make them quickly and easily done. The goal is to ensure that all snapshot logic executed in all connectors is unified ensuring data experience is the same across multiple mediums. If you are updating the framework you must ```npm update``` packages below, test, and validate changes.
 
 Salesforce has 1 version of data with GRAX you have 100% of your Salesforce history accessible in all applications listed below. Please view the [demonstration video](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/) just how quickly you can use your Salesforce history.
 
