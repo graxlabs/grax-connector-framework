@@ -2,12 +2,14 @@
 // "use strict";
 var axios = require("axios").default;
 var jszip = require("jszip");
-var csvparser = require('papaparse');
+// var csvparser = require('papaparse');
+var parsecsv = require('csv-parse/sync');
+let converter = require('json-2-csv');
 
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
+exports.backupsHealthGet = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -120,8 +122,25 @@ async function retrieveObjectList(currentPageToken) {
 // ------------------------------------------------------------------------------------------------------
 //                                          Snapshot Logic                             
 // ------------------------------------------------------------------------------------------------------
+// Default returns a CSV document
 var getSnapshotData = async function (snapshotDef) {
+  var jsondoc = await getSnapshotDataAsJSON(snapshotDef);
+  var csv = converter.json2csv(jsondoc);
+  return csv;
+}
+exports.getSnapshotData = getSnapshotData;
+
+
+var getSnapshotDataAs2DArray = async function (snapshotDef) {
+  var jsondoc = await getSnapshotDataAsJSON(snapshotDef);
+  var csvarray = jsonArrayTo2DArray(jsondoc);
+  return csvarray;
+}
+exports.getSnapshotDataAs2DArray = getSnapshotDataAs2DArray;
+
+var getSnapshotDataAsJSON = async function (snapshotDef) {
   console.log('Running Snapshot ' + snapshotDef.objectname);
+  var snapshotData = [];   
   await runSnapShot(
     snapshotDef.objectname,
     snapshotDef.datefield,
@@ -140,7 +159,6 @@ var getSnapshotData = async function (snapshotDef) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   await new Promise(resolve => setTimeout(resolve, 500));
-  var snapshotData=""
   var firstRow = "";
   for (var i=1; i < searches.length; i++) {
     var searchId = searches[i][5];
@@ -149,59 +167,51 @@ var getSnapshotData = async function (snapshotDef) {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     console.log("Search Complete: " + searchId);
-    var str = searchdata.get(searchId);
-    snapshotData += addColumnToCSV(str,"Snapshot Date",searches[i][0],true);
-    firstRow = str.substring(0,str.indexOf('\n'));
-    // snapshotData+=str.substring(str.indexOf('\n') + 1);
+    var csvString = searchdata.get(searchId);
+    var removegraxfields = snapshotDef.includesystemfields.toString().toLowerCase() == "false";
+    console.log('removegraxfields: ' + removegraxfields);
+    var jsonArray = await parseCsv(csvString,removegraxfields);
+  
+    jsonArray.forEach(obj => {
+      obj["Snapshot Date"] = searches[i][0];
+      snapshotData.push(obj);
+    });
   }
-  var returnvalue = firstRow + ",Snapshot Date\n" + snapshotData;
-  if (snapshotDef.includesystemfields == false || snapshotDef.includesystemfields.toString().toLowerCase() == "false" || snapshotDef.includesystemfields==null){
-    returnvalue = removeGraxSytemFields(returnvalue);
-  }
-  return returnvalue;
+  //console.log(snapshotData);
+  return snapshotData;
 }
-exports.getSnapshotData = getSnapshotData;
+exports.getSnapshotDataAsJSON = getSnapshotDataAsJSON;
 
-function addColumnToCSV(csvString, columnName, columnData,removefirstrow) {
-  console.log("Adding " + columnName + "=" + columnData);
-  var parsedcsv = parseCsv(csvString);
-  var columnIndex = parsedcsv[0] ? parsedcsv[0].length : 0;
-  for (let row of parsedcsv) {
-    row.splice(columnIndex, 0, columnData);
+function jsonArrayTo2DArray(jsonArray) {
+  // Check if the input is an array
+  if (!Array.isArray(jsonArray)) {
+      console.error("Input is not an array.");
+      return null;
   }
-  parsedcsv[0][columnIndex] = columnName;
-  if (removefirstrow==true){
-    parsedcsv.shift();
-  }
-  return parsedcsv.join('\n') + '\n';
-}
 
-function removeGraxSytemFields(csvString) {
-  // Split the CSV into lines
-  const lines = csvString.split('\n');
+  // Initialize the result 2D array with the first row as field names
+  const result = [];
+  const firstRow = [];
 
-  if (lines.length === 0) return '';
-
-  // Identify the header line and split it into columns
-  const headers = lines[0].split(',');
-
-  // Find indexes of columns whose headers contain 'grax'
-  const columnIndexesToRemove = headers.reduce((indexes, header, index) => {
-      if (header.toLowerCase().includes('grax.')) {
-          indexes.push(index);
+  // Extract field names from the first object in the array
+  if (jsonArray.length > 0) {
+      const firstObject = jsonArray[0];
+      for (let key in firstObject) {
+          firstRow.push(key);
       }
-      return indexes;
-  }, []);
+      result.push(firstRow);
+  }
 
-  // Filter out the columns in each line
-  const filteredLines = lines.map(line => {
-      const cols = line.split(',');
-      const filteredCols = cols.filter((col, index) => !columnIndexesToRemove.includes(index));
-      return filteredCols.join(',');
+  // Iterate over each object in the JSON array and extract values
+  jsonArray.forEach(obj => {
+      const tempArray = [];
+      for (let key in obj) {
+          tempArray.push(obj[key]);
+      }
+      result.push(tempArray);
   });
 
-  // Join the filtered lines back into a single CSV string
-  return filteredLines.join('\n');
+  return result;
 }
 
 // Runs the snapshot which executes X searches and logs them in the GRAX_RECEIPTS tab
@@ -341,18 +351,30 @@ function registerException(ex) {
   globalThis.graxexception = ex;
 }
 
-var parseCsv = function parseCsv(csvdata){
-  var parsedcsv = csvparser.parse(csvdata,{delimiter:",",quoteChar:'"',escapeChar:'"',skipEmptyLines: true});
-  var validrows = [];
-  for (const value of parsedcsv.data) {
-    if (value.length > 0) {
-      if (value.length>1 || value[0]!="")
-        validrows.push(value);
-    }
-  }
-  return validrows
+var parseCsv = async function parseCsv(csvdata,removegraxfields){
+  var parsedcsv = await parsecsv.parse(csvdata,{
+    columns: true,
+    skip_empty_lines: true
+  });
+
+  if (removegraxfields==true)
+    parsedcsv = removeFieldsStartingWithGrax(parsedcsv);
+
+  return parsedcsv;
 }
 exports.parseCsv = parseCsv;
+
+
+function removeFieldsStartingWithGrax(jsonObject) {
+  jsonObject.forEach(obj => {
+    for (let key in obj) {
+        if (key.startsWith("grax.")) {
+            delete obj[key];
+        }
+    }
+  });
+  return jsonObject;
+}
 
 // Internal Date Functions Not Exports
 function getCurrentDate(){
