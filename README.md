@@ -7,9 +7,9 @@ The GRAX Connector Framework is used by all GRAX connectors that need to execute
 Salesforce has 1 version of data with GRAX you have 100% of your Salesforce history accessible in all applications listed below. Please view the [demonstration video](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/) just how quickly you can use your Salesforce history.
 
 ### Supported Connectors
-* [grax-connector-for-excel](https://github.com/graxlabs/grax-connector-for-excel/) - [Microsoft Excel Demonstration Video](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/)
-* [grax-connector-for-tableau](https://github.com/graxlabs/grax-connector-for-tableau)
-* [grax-connector-for-google](https://www.grax.com/blog/how-to-pull-data-from-salesforce-to-google-sheets/) - Needs to be updated
+* [grax-connector-for-excel](https://github.com/graxlabs/grax-connector-for-excel/) - [Microsoft Excel Demonstration Video](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/) - Released
+* [grax-connector-for-tableau](https://github.com/graxlabs/grax-connector-for-tableau) - Released 
+* [grax-connector-for-google](https://www.grax.com/blog/how-to-pull-data-from-salesforce-to-google-sheets/) - Released
 * [grax-connector-for-snowflake](https://github.com/graxlabs/grax-connector-framework) - Development
 * [grax-connector-for-powerbi](https://github.com/graxlabs/grax-connector-framework) - Development
 * [grax-connector-for-outsystems](https://github.com/graxlabs/grax-connector-framework) - Development
