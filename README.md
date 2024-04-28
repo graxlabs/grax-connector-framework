@@ -7,12 +7,12 @@ The GRAX Connector Framework is used by all GRAX connectors that need to execute
 ### Used By
 * [grax-connector-for-excel](https://github.com/graxlabs/grax-connector-for-excel/)
 * [grax-connector-for-tableau](https://github.com/graxlabs/grax-connector-for-tableau)
-* [grax-connector-for-google] - Needs to be updated
-* [grax-connector-for-snowflake] - Development
-* [grax-connector-for-powerbi] - Development
-* [grax-connector-for-outsystems] - Development
-* [grax-connector-for-synapse] - Development
-* [grax-connector-for-athena] - Development
+* [grax-connector-for-google](https://www.grax.com/blog/how-to-pull-data-from-salesforce-to-google-sheets/) - Needs to be updated
+* [grax-connector-for-snowflake](https://github.com/graxlabs/grax-connector-framework) - Development
+* [grax-connector-for-powerbi](https://github.com/graxlabs/grax-connector-framework) - Development
+* [grax-connector-for-outsystems](https://github.com/graxlabs/grax-connector-framework) - Development
+* [grax-connector-for-synapse](https://github.com/graxlabs/grax-connector-framework) - Development
+* [grax-connector-for-athena](https://github.com/graxlabs/grax-connector-framework) - Development
 
 
 #### Testing 
