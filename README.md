@@ -1,10 +1,9 @@
 <img src="https://www.grax.com/wp-content/uploads/2023/03/Profile-Yt-256x256.png" align="right" height="40" width="40" >
 
 ## GRAX Connector Framework
-
-The GRAX Connector Framework is used by all GRAX connectors to execute snapshot reports to make them quickly and easily done. The goal is to ensure that all snapshot logic executed in all connectors is unified ensuring data experience is the same across multiple mediums. If you are updating the framework you must ```npm update``` packages below, test, and validate changes.
-
 Salesforce has 1 version of data with GRAX you have 100% of your Salesforce history accessible in all applications listed below. Please view the [demonstration video](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/) just how quickly you can use your Salesforce history. GRAX history can be used to build Salesforce Historical Pipeline Reports, Salesforce Historical Case/Support Volume & Capacity Usage, Salesforce Historical Order Velocity/Volume/etc.
+
+The GRAX Connector Framework is used by all GRAX connectors to execute snapshot reports to make them quickly and easily done. The goal is to ensure that all snapshot logic executed in all connectors is unified ensuring data experience is the same across multiple mediums. If you are updating the framework you must ```npm update``` packages below, test, and validate changes. Please use issues above to report any exceptions, bugs, and requests. If you would like to Collect, Protect, and reuse your Salesforce History please email [Sales@grax.com](mailto:sales@grax.com?subject=GRAX%20Connector%20Framework%20Request). Salesforce history can be reused in any and every application quickly and easily.
 
 
 ### Supported Connectors
