@@ -33,7 +33,7 @@ If you would like to collect, protect, and reuse all your Salesforce history it 
 * [Connect GRAX to Salesforce](https://documentation.grax.com/docs/connecting-salesforce)
 * [Start Auto Backup](https://documentation.grax.com/docs/auto-backup) 
 
-#### How to develop locally
+#### Development 
 ```
 git clone https://github.com/graxlabs/grax-connector-framework
 cd grax-connector-framework
