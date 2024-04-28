@@ -2,14 +2,14 @@
 var g = require('./index.js');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
-//TestHealth();
-//TestObjectList();
-//console.log(g.SnapShotDefinition);
-//TestgetSearch();
-//TestdownloadSearch();
-//TestgetSavedSnapshots();
-//g.SnapShotDefinition.numberofsnapshots = 1;
-//TestgetSnapshotData();
+TestHealth();
+TestObjectList();
+console.log(g.SnapShotDefinition);
+//TestgetSearch();                  // Change the searchID sample below
+//TestdownloadSearch();             // Change the searchID sample below
+TestgetSavedSnapshots();
+g.SnapShotDefinition.numberofsnapshots = 1;
+TestgetSnapshotData();
 TestgetSnapshotDataAs2DArray();
 
 async function TestHealth(){
