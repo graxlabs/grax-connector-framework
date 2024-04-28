@@ -5,6 +5,12 @@ Salesforce has 1 version of data with GRAX you have 100% of your Salesforce hist
 
 The GRAX Connector Framework is used by all GRAX connectors to execute snapshot reports to make them quickly and easily done. The goal is to ensure that all snapshot logic executed in all connectors is unified ensuring data experience is the same across multiple mediums. If you are updating the framework you must ```npm update``` packages below, test, and validate changes. Please use issues above to report any exceptions, bugs, and requests. If you would like to Collect, Protect, and reuse your Salesforce History please email [Sales@grax.com](mailto:sales@grax.com?subject=GRAX%20Connector%20Framework%20Request). Salesforce history can be reused in any and every application quickly and easily.
 
+### Sample Business Cases
+* [Using Customer Service Analytics to Reduce Churn and Costs](https://www.grax.com/blog/using-customer-service-analytics-to-reduce-churn-and-costs/)
+* [Create Snapshot Reports With Our Salesforce Excel Connector](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/)
+* [Improving Customer Experience Insights and Loyalty](https://www.grax.com/blog/improving-customer-experience-insights-and-loyalty/)
+* [Transform Your Salesforce Reporting and Elevate Your Sales Data Analysis with GRAX for Excel](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/)
+
 
 ### Supported Connectors
 * [grax-connector-for-excel](https://github.com/graxlabs/grax-connector-for-excel/) - [Microsoft Excel Demonstration Video](https://www.grax.com/blog/create-snapshot-reports-with-our-salesforce-excel-connector/) - Released
