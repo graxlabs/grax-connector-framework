@@ -315,10 +315,16 @@ async function doSearch(index, objectName, timeField, startDate, endDate, filter
 // ------------------------------------------------------------------------------------------------------
 
 // Waits and gets the results of a search
-var getObjectFields = async function (objectName) {
-  return await objectFieldsList(objectName)
+var getObjectFields = async function (objectName, currentPageToken) {
+  return await objectFieldsList(objectName,{maxItems: 2000, pageToken: currentPageToken})
     .then(async (res) => {
-      return res.data.fields;
+      if (res.data.nextPageToken != null) {
+        var objs = await getObjectFields(objectName,res.data.nextPageToken);
+        var objectFields = res.data.fields.concat(objs);
+        return objectFields;
+      } else {
+        return res.data.fields;
+      }
     })
     .catch((err) => registerException(err));
 }
@@ -401,7 +407,6 @@ var parseCsv = async function parseCsv(csvdata,removegraxfields){
   return parsedcsv;
 }
 exports.parseCsv = parseCsv;
-
 
 function removeFieldsStartingWithGrax(jsonObject) {
   jsonObject.forEach(obj => {
