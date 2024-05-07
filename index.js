@@ -34,10 +34,10 @@ var jszip = require("jszip");
 var parsecsv = require('csv-parse/sync');
 let converter = require('json-2-csv');
 
-var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList } = require("grax_api");
+var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList, objectFieldsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
+exports.backupsHealthGet = exports.getObjectFields = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -313,6 +313,16 @@ async function doSearch(index, objectName, timeField, startDate, endDate, filter
 // ------------------------------------------------------------------------------------------------------
 //                                  
 // ------------------------------------------------------------------------------------------------------
+
+// Waits and gets the results of a search
+var getObjectFields = async function (objectName) {
+  return await objectFieldsList(objectName)
+    .then(async (res) => {
+      return res.data.fields;
+    })
+    .catch((err) => registerException(err));
+}
+exports.getObjectFields = getObjectFields;
 
 // Waits and gets the results of a search
 var getSearch = async function (searchId) {

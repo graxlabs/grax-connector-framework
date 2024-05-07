@@ -4,13 +4,14 @@ g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
 TestHealth();
 TestObjectList();
-console.log(g.SnapShotDefinition);
+TestObjectFieldList("Opportunity");
+//console.log(g.SnapShotDefinition);
 //TestgetSearch();                  // Change the searchID sample below
 //TestdownloadSearch();             // Change the searchID sample below
-TestgetSavedSnapshots();
-g.SnapShotDefinition.numberofsnapshots = 1;
-TestgetSnapshotData();
-TestgetSnapshotDataAs2DArray();
+//TestgetSavedSnapshots();
+//g.SnapShotDefinition.numberofsnapshots = 1;
+//TestgetSnapshotData();
+//TestgetSnapshotDataAs2DArray();
 
 // This gets the health of GRAX
 async function TestHealth(){
@@ -22,6 +23,12 @@ async function TestHealth(){
 async function TestObjectList(){
     var list = await g.getObjectsList();
     console.log("Object List Returned: " + list.length);
+}
+
+// This gets a object list from GRAX
+async function TestObjectFieldList(objectName){
+    var list = await g.getObjectFields(objectName);
+    console.log(list);
 }
 
 // This gets a CSV snapshot
