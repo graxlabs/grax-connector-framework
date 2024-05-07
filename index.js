@@ -157,22 +157,30 @@ async function retrieveObjectList(currentPageToken) {
 // Default returns a CSV document
 var getSnapshotData = async function (snapshotDef) {
   var jsondoc = await getSnapshotDataAsJSON(snapshotDef);
-  var csv = converter.json2csv(jsondoc);
-  return csv;
+  if (jsondoc!=null){
+    var csv = converter.json2csv(jsondoc);
+    return csv;
+  }else{
+    return "";
+  }
 }
 exports.getSnapshotData = getSnapshotData;
 
-
 var getSnapshotDataAs2DArray = async function (snapshotDef) {
   var jsondoc = await getSnapshotDataAsJSON(snapshotDef);
-  var csvarray = jsonArrayTo2DArray(jsondoc);
-  return csvarray;
+  if (jsondoc!=null){
+    var csvarray = jsonArrayTo2DArray(jsondoc);
+    return csvarray;
+  }else{
+    return [];
+  }
 }
 exports.getSnapshotDataAs2DArray = getSnapshotDataAs2DArray;
 
 var getSnapshotDataAsJSON = async function (snapshotDef) {
   console.log('Running Snapshot ' + snapshotDef.objectname);
   var snapshotData = [];   
+  var searchfailed = false;
   await runSnapShot(
     snapshotDef.objectname,
     snapshotDef.datefield,
@@ -198,19 +206,26 @@ var getSnapshotDataAsJSON = async function (snapshotDef) {
       console.log("Search Not Complete (waiting): " + searchId);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-    console.log("Search Complete: " + searchId);
-    var csvString = searchdata.get(searchId);
-    var removegraxfields = snapshotDef.includesystemfields.toString().toLowerCase() == "false";
-    console.log('removegraxfields: ' + removegraxfields);
-    var jsonArray = await parseCsv(csvString,removegraxfields);
-  
-    jsonArray.forEach(obj => {
-      obj["Snapshot Date"] = searches[i][0];
-      snapshotData.push(obj);
-    });
+    if (searchdata.get(searchId)!="ERROR"){
+      console.log("Search Complete: " + searchId);
+      var csvString = searchdata.get(searchId);
+      var removegraxfields = snapshotDef.includesystemfields.toString().toLowerCase() == "false";
+      console.log('removegraxfields: ' + removegraxfields);
+      var jsonArray = await parseCsv(csvString,removegraxfields);
+      jsonArray.forEach(obj => {
+        obj["Snapshot Date"] = searches[i][0];
+        snapshotData.push(obj);
+      });
+    } else {
+      console.log("Search Failed: " + searchId);
+      searchfailed = true;
+    }
   }
-  //console.log(snapshotData);
-  return snapshotData;
+  // If 1 search fails return null
+  if (searchfailed==false)
+    return snapshotData;
+  else
+    return null;
 }
 exports.getSnapshotDataAsJSON = getSnapshotDataAsJSON;
 
@@ -357,7 +372,10 @@ var downloadSearch = async function (searchId, fields) {
   };
   searchdata.set(searchId,"DOWNLOADING");
   var search = await getSearch(searchId);
-  if (search.status != "success"){
+  console.log("search.status: " + search.status);
+  if (search.status == "error"){
+    searchdata.set(searchId,"ERROR");
+  }else if (search.status != "success"){
     await new Promise(resolve => setTimeout(resolve, 2000));
     downloadSearch(searchId,fields);
   } else {

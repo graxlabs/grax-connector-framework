@@ -10,7 +10,7 @@ TestHealth();
 //TestdownloadSearch();             // Change the searchID sample below
 //TestgetSavedSnapshots();
 //g.SnapShotDefinition.numberofsnapshots = 1;
-//TestgetSnapshotData();
+TestgetSnapshotData();
 //TestgetSnapshotDataAs2DArray();
 
 // This gets the health of GRAX
