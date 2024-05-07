@@ -101,11 +101,15 @@ var connect = function(graxurl, graxtoken) {
 };
 exports.connect = connect;
 
-var getHealth = async function() {
+var getHealth = async function(maxSecondsBehind) {
   try {
+      var maxBehind = 24 * 60 * 60; // 1 day
+      if (maxSecondsBehind!=null && maxSecondsBehind!="" && maxSecondsBehind!=0)
+        maxBehind = parseInt(maxSecondsBehind);
+
       var ishealthy = false;
       let opts = {
-        maxBehind: 56, // Number | Maximum time behind before the backups are considered unhealthy, in seconds.
+        maxBehind: maxBehind, // Number | Maximum time behind before the backups are considered unhealthy, in seconds.
       };
       var healthData = await backupsHealthGet(opts).catch((err) => {
         console.log(err);

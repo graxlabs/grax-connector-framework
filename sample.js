@@ -3,8 +3,8 @@ var g = require('./index.js');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
 TestHealth();
-TestObjectList();
-TestObjectFieldList("Opportunity");
+//TestObjectList();
+//TestObjectFieldList("Opportunity");
 //console.log(g.SnapShotDefinition);
 //TestgetSearch();                  // Change the searchID sample below
 //TestdownloadSearch();             // Change the searchID sample below
