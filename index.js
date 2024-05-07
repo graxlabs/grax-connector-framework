@@ -37,7 +37,7 @@ let converter = require('json-2-csv');
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList, objectFieldsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.getObjectFields = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
+exports.backupsHealthGet = exports.exception = exports.getObjectFields = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -60,6 +60,9 @@ exports.searches = searches;
 
 var searchdata = new Map();
 exports.searchdata = searchdata;
+
+var exceptionlist = [];
+exports.exception = exceptionlist;
 
 exports.SnapShotDefinition = {
   objectname: 'Opportunity',
@@ -112,7 +115,7 @@ var getHealth = async function(maxSecondsBehind) {
         maxBehind: maxBehind, // Number | Maximum time behind before the backups are considered unhealthy, in seconds.
       };
       var healthData = await backupsHealthGet(opts).catch((err) => {
-        console.log(err);
+        registerException(err,"getHealth");
         return false;
       });
       if (healthData != null) {
@@ -123,8 +126,7 @@ var getHealth = async function(maxSecondsBehind) {
       }
       return ishealthy;
   } catch(err) {
-    console.log("getHealth EXCEPTION");
-    console.log(err);
+    registerException(err,"getHealth");
     return false;
   }
 }
@@ -147,7 +149,7 @@ async function retrieveObjectList(currentPageToken) {
         return res.data.objects;
       }
     })
-    .catch((err) => registerException(err));  
+    .catch((err) => registerException(err,"retrieveObjectList"));  
   return vals;
 }
 
@@ -324,9 +326,9 @@ async function doSearch(index, objectName, timeField, startDate, endDate, filter
         searches[index+1][5] = res.data.id;
         return res.data.id;
       })
-      .catch((err) => registerException(err));
+      .catch((err) => registerException(err,"doSearch"));
   } catch (ex) {
-    registerException(ex);
+    registerException(ex,"doSearch");
   }
 }
 // ------------------------------------------------------------------------------------------------------
@@ -345,7 +347,7 @@ var getObjectFields = async function (objectName, currentPageToken) {
         return res.data.fields;
       }
     })
-    .catch((err) => registerException(err));
+    .catch((err) => registerException(err,"objectFieldsList"));
 }
 exports.getObjectFields = getObjectFields;
 
@@ -355,7 +357,7 @@ var getSearch = async function (searchId) {
     .then(async (res) => {
       return res.data;
     })
-    .catch((err) => registerException(err));
+    .catch((err) => registerException(err,"searchGet"));
 }
 exports.getSearch = getSearch;
 
@@ -396,13 +398,13 @@ var downloadSearch = async function (searchId, fields) {
               });
             })
             .catch((error) => {
-              registerException(error);
+              registerException(error,"downloadSearch");
             });
         } catch (exception) {
-          registerException(exception);
+          registerException(exception,"downloadSearch");
         }
       })
-      .catch((err) => registerException(err));
+      .catch((err) => registerException(err,"downloadSearch"));
   }
 }
 exports.downloadSearch = downloadSearch;
@@ -410,11 +412,13 @@ exports.downloadSearch = downloadSearch;
 //                                  
 // ------------------------------------------------------------------------------------------------------
 
-function registerException(ex) {
-  console.log("EXCEPTION!");
-  console.log(ex);
-  globalThis.isException = true;
-  globalThis.graxexception = ex;
+function registerException(ex,source) {
+  var str = "EXCEPTION!"
+  if (source!=null)
+    str = source + " : " + str;
+  
+  console.log(str);
+  exceptionlist.push(ex);
 }
 
 var parseCsv = async function parseCsv(csvdata,removegraxfields){
