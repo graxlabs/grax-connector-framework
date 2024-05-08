@@ -69,9 +69,9 @@ exports.setSetStreamOutputLocation = setSetStreamOutputLocation;
 
 function notifyCaller(message){
   console.log(message);
-  console.log("****notifyCaller****");
-  console.log(streamoutoutlocation);
-  streamoutoutlocation.innerText = message;
+  if (!!streamoutoutlocation){
+    streamoutoutlocation.innerText = message;
+  }
 }
 
 var exceptionlist = [];
@@ -218,7 +218,7 @@ var getSnapshotDataAsJSON = async function (snapshotDef) {
   for (var i=1; i < searches.length; i++) {
     var searchId = searches[i][5];
     while (searchdata.get(searchId)=="DOWNLOADING"){
-      console.log("Search Not Complete (waiting): " + searchId);
+      notifyCaller("Search Not Complete (waiting): " + searchId);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     if (searchdata.get(searchId)!="ERROR"){
