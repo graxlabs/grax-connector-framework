@@ -37,7 +37,7 @@ let converter = require('json-2-csv');
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList, objectFieldsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.streamoutoutlocation = exports.exception = exports.getObjectFields = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
+exports.backupsHealthGet = exports.setSetStreamOutputLocation = exports.exception = exports.getObjectFields = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -62,7 +62,10 @@ var searchdata = new Map();
 exports.searchdata = searchdata;
 
 var streamoutoutlocation = {};
-exports.streamoutoutlocation = streamoutoutlocation;
+var setSetStreamOutputLocation = function(location){
+  streamoutoutlocation = location
+}
+exports.setSetStreamOutputLocation = setSetStreamOutputLocation;
 
 function notifyCaller(message){
   console.log(message);
