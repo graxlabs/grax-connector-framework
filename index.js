@@ -61,14 +61,12 @@ exports.searches = searches;
 var searchdata = new Map();
 exports.searchdata = searchdata;
 
-let streamoutoutlocation = null;
+var streamoutoutlocation = {};
 exports.streamoutoutlocation = streamoutoutlocation;
 
 function notifyCaller(message){
   console.log(message);
-  if (streamoutoutlocation!=null){
-    streamoutoutlocation.innerText = message;
-  }
+  streamoutoutlocation.innerText = message;
 }
 
 var exceptionlist = [];
