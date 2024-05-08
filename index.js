@@ -66,6 +66,8 @@ exports.streamoutoutlocation = streamoutoutlocation;
 
 function notifyCaller(message){
   console.log(message);
+  console.log("****notifyCaller****");
+  console.log(streamoutoutlocation);
   streamoutoutlocation.innerText = message;
 }
 

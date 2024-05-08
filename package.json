@@ -1,6 +1,6 @@
 {
   "name": "grax-connector-framework",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "GRAX Connector Framework",
   "main": "index.js",
   "scripts": {
