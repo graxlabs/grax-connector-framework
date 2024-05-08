@@ -3,6 +3,7 @@ var g = require('./index.js');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
 TestHealth();
+TestgetAccountData("001UL000006s6g5YAA");
 //TestObjectList();
 //TestObjectFieldList("Opportunity");
 //console.log(g.SnapShotDefinition);
@@ -37,6 +38,22 @@ async function TestgetSnapshotData(){
     g.SnapShotDefinition.numberofsnapshots = 1;
     g.SnapShotDefinition.fields += ",Description";
     let searchdata = await g.getSnapshotData(g.SnapShotDefinition);
+    console.log(searchdata);
+}
+
+async function TestgetAccountData(accountId){
+    let snapshotDef = {};
+    snapshotDef.objectname = "Account";
+    snapshotDef.fields = "Id,Name,BillingAddress,BillingCity,BillingCountry,BillingCountryCode,BillingGeocodeAccuracy,BillingLatitude,BillingLongitude,BillingState,BillingStateCode,BillingStreet,BillingPostalCode,CreatedDate,LastModifiedDate,ShippingAddress,ShippingCity,ShippingCountry,ShippingCountryCode,ShippingGeocodeAccuracy,ShippingLatitude,ShippingLongitude,ShippingState,ShippingStateCode,ShippingStreet,ShippingPostalCode";
+    snapshotDef.datefield = "rangeLatestModifiedAt";
+    snapshotDef.numberofsnapshots = 1;
+    snapshotDef.searchstart = "1/1/2023";
+    snapshotDef.startdate = "05/31/2024";
+    snapshotDef.snapshotfrequncy = "monthly";
+    snapshotDef.includesystemfields = false;
+    snapshotDef.filter = {"mode":"and","fields":[{"field":"Id","filterType":"eq","not":false,"value":accountId}]}
+    // console.log(snapshotDef);
+    let searchdata = await g.getSnapshotData(snapshotDef);
     console.log(searchdata);
 }
 

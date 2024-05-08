@@ -37,7 +37,7 @@ let converter = require('json-2-csv');
 var { backupsHealthGet, searchCreate, searchGet, searchDownload, objectsList, objectFieldsList } = require("grax_api");
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.backupsHealthGet = exports.exception = exports.getObjectFields = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
+exports.backupsHealthGet = exports.streamoutoutlocation = exports.exception = exports.getObjectFields = exports.getSnapshotDataAs2DArray = exports.getSnapshotDataAsJSON =  exports.parseCsv = exports.downloadSearch = exports.getSearch = exports.searchdata = exports.searches = exports.getObjectsList = exports.getSnapshotData = exports.SnapShotDefinition = exports.getSavedSnapshots = exports.DateFields = exports.Frequency = void 0;
 
 exports.DateFields = [
   'rangeLatestModifiedAt',
@@ -60,6 +60,16 @@ exports.searches = searches;
 
 var searchdata = new Map();
 exports.searchdata = searchdata;
+
+let streamoutoutlocation = null;
+exports.streamoutoutlocation = streamoutoutlocation;
+
+function notifyCaller(message){
+  console.log(message);
+  if (streamoutoutlocation!=null){
+    streamoutoutlocation = message;
+  }
+}
 
 var exceptionlist = [];
 exports.exception = exceptionlist;
@@ -180,7 +190,7 @@ var getSnapshotDataAs2DArray = async function (snapshotDef) {
 exports.getSnapshotDataAs2DArray = getSnapshotDataAs2DArray;
 
 var getSnapshotDataAsJSON = async function (snapshotDef) {
-  console.log('Running Snapshot ' + snapshotDef.objectname);
+  notifyCaller('Running Snapshot ' + snapshotDef.objectname);
   var snapshotData = [];   
   var searchfailed = false;
   await runSnapShot(
@@ -196,7 +206,7 @@ var getSnapshotDataAsJSON = async function (snapshotDef) {
   await new Promise(resolve => setTimeout(resolve, 500));
   // Header Column is + 1 (probably remove that later)
   for (var i=1; i < searches.length; i++) {
-    console.log('Starting Download (' + i + '): ' + searches[i][5]);
+    notifyCaller('Starting Download (' + i + '): ' + searches[i][5]);
     await downloadSearch(searches[i][5],snapshotDef.fields);
     await new Promise(resolve => setTimeout(resolve, 500));
   }
@@ -209,7 +219,7 @@ var getSnapshotDataAsJSON = async function (snapshotDef) {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     if (searchdata.get(searchId)!="ERROR"){
-      console.log("Search Complete: " + searchId);
+      notifyCaller("Search Complete: " + searchId);
       var csvString = searchdata.get(searchId);
       var removegraxfields = snapshotDef.includesystemfields.toString().toLowerCase() == "false";
       console.log('removegraxfields: ' + removegraxfields);
@@ -219,7 +229,7 @@ var getSnapshotDataAsJSON = async function (snapshotDef) {
         snapshotData.push(obj);
       });
     } else {
-      console.log("Search Failed: " + searchId);
+      notifyCaller("Search Failed: " + searchId);
       searchfailed = true;
     }
   }
@@ -299,7 +309,7 @@ async function runSnapShot(
         filter
       );
     } else {
-      console.log("Skipping Search: " + endDate + " segmentKey: " + segmentKey);
+      notifyCaller("Skipping Search: " + endDate + " segmentKey: " + segmentKey);
     }
   }
   return searches;
@@ -381,6 +391,8 @@ var downloadSearch = async function (searchId, fields) {
     await new Promise(resolve => setTimeout(resolve, 2000));
     downloadSearch(searchId,fields);
   } else {
+    console.log("Download Options");
+    console.log(searchOptions);
     searchDownload(searchId, searchOptions, downloadoptions)
       .then(async (res) => {
         try {
@@ -392,7 +404,7 @@ var downloadSearch = async function (searchId, fields) {
                 if (zipfile.name != ".readme") {
                   zipfile.async("string").then(async function (unzipped) {
                     searchdata.set(searchId,unzipped);
-                    console.log("Downloaded: " + searchId);
+                    notifyCaller("Downloaded: " + searchId);
                   });
                 }
               });
@@ -417,7 +429,7 @@ function registerException(ex,source) {
   if (source!=null)
     str = source + " : " + str;
   
-  console.log(str);
+  notifyCaller(str);
   exceptionlist.push(ex);
 }
 
