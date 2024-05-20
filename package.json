@@ -1,6 +1,6 @@
 {
   "name": "grax-connector-framework",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "description": "GRAX Connector Framework",
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "csv-parse": "^5.5.5",
     "grax_api": "github:graxlabs/grax-js",
     "json-2-csv": "^5.5.1",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "querystring": "^0.2.1"
   }
 }

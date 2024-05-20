@@ -1,24 +1,36 @@
 
 var g = require('./index.js');
+var querystring = require('querystring');
 g.connect(process.env.GRAX_URL,process.env.GRAX_TOKEN);
 
 TestHealth();
-TestgetAccountData("001UL000006s6g5YAA");
-//TestObjectList();
-//TestObjectFieldList("Opportunity");
-//console.log(g.SnapShotDefinition);
-//TestgetSearch();                  // Change the searchID sample below
-//TestdownloadSearch();             // Change the searchID sample below
-//TestgetSavedSnapshots();
-//g.SnapShotDefinition.numberofsnapshots = 1;
+TestObjectList();
+TestSnapshotWithDef();
+
+// TestgetAccountData("001UL000006s6g5YAA");
+// TestObjectFieldList("Opportunity");
+// console.log(g.SnapShotDefinition);
+// TestgetSearch();                  // Change the searchID sample below
+// TestdownloadSearch();             // Change the searchID sample below
+// TestgetSavedSnapshots();
+// g.SnapShotDefinition.numberofsnapshots = 1;
 // TestgetSnapshotData();
-//TestgetSnapshotDataAs2DArray();
+// TestgetSnapshotDataAs2DArray();
 
 // This gets the health of GRAX
 async function TestHealth(){
     var health = await g.getHealth();
     console.log("Health Returned: " + health);
     console.log("Health Exception: " + g.exception);
+}
+
+async function TestSnapshotWithDef(){
+    var url = "/api?format=json&graxtoken=" + process.env.GRAX_TOKEN + "&graxurl=" + process.env.GRAX_URL + "&snapshot=%7B%22objectname%22%3A%22Opportunity%22%2C%22fields%22%3A%22Id%2CAccountId%2CCloseDate%2CAmount%2CStageName%2CType%2CCreatedDate%2CLastModifiedDate%22%2C%22datefield%22%3A%22rangeLatestModifiedAt%22%2C%22numberofsnapshots%22%3A%2212%22%2C%22startdate%22%3A%2205%2F01%2F2023%22%2C%22searchstart%22%3A%221%2F1%2F2023%22%2C%22snapshotfrequncy%22%3A%22monthly%22%2C%22includesystemfields%22%3Afalse%2C%22filter%22%3A%7B%22mode%22%3A%22and%22%2C%22fields%22%3A%5B%7B%22field%22%3A%22StageName%22%2C%22filterType%22%3A%22eq%22%2C%22not%22%3Atrue%2C%22value%22%3A%22Closed%20Lost%22%7D%2C%7B%22field%22%3A%22StageName%22%2C%22filterType%22%3A%22eq%22%2C%22not%22%3Atrue%2C%22value%22%3A%22Closed%20Won%22%7D%5D%7D%7D";
+    var parsed = querystring.parse(url);
+    g.connect(parsed.graxurl,parsed.graxtoken);
+    g.SnapShotDefinition = JSON.parse(parsed.snapshot);
+    var results = await g.getSnapshotDataAsJSON(g.SnapShotDefinition);
+    console.log (results);
 }
 
 // This gets a object list from GRAX

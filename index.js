@@ -328,9 +328,10 @@ async function doSearch(index, objectName, timeField, startDate, endDate, filter
     timeFieldMin: startDate.toString()
   };
 
-  if (searchopts.timeField != "deletedAt" && searchopts.timeField != "purgedAt") {
-    searchopts.status = "live";
-  }
+  // Not needed as rangeLatestModifiedAt returns latest version by default
+  //if (searchopts.timeField != "deletedAt" && searchopts.timeField != "purgedAt") {
+  //  searchopts.status = "live";
+  //}
   if (filter != null && filter != "") {
     searchopts.filters = await JSON.parse(filter);
   }
