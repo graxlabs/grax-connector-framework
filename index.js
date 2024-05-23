@@ -330,6 +330,7 @@ async function doSearch(index, objectName, timeField, startDate, endDate, filter
 
   if (searchopts.timeField != "deletedAt" && searchopts.timeField != "purgedAt") {
     searchopts.status = "live";
+    searchopts.statusAtModified = true;
   }
   if (filter != null && filter != "") {
     searchopts.filters = await JSON.parse(filter);
